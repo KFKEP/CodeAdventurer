@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <string>
@@ -207,16 +207,16 @@ void step() {
 }
 
 
-//Проверка стоит ли игрок на "1"
+// Функція перевірки, чи стоїть Кодикс на сигналі
 int checkForBeep() {
-    // Чтение карты из файла
+    // Читання карти з файла 
     vector<vector<char>> map = readMapFromFile();
 
-    int height = map.size(); // Количество строк (высота карты)
-    int width = map[0].size(); // Количество символов в строке (ширина карты)
+    int height = map.size(); // Кількість рядків (висота карти)
+    int width = map[0].size(); // Кількість символів в рядку (ширина карти)
 
-    int targetRow = (height - 3) - 2 * (player_coordY - 1);  // Строка для игрока (по оси Y)
-    int targetCol = 2 + 4 * (player_coordX - 1);  // Столбец для игрока (по оси X)
+    int targetRow = (height - 3) - 2 * (codix_coordY - 1);  // Рядок для Кодикса (по осі Y)
+    int targetCol = 2 + 4 * (codix_coordX - 1);  // Стовбець для Кодикса (по осі X)
 
     if (map[targetRow][targetCol] == '1') { return 1; }
 
@@ -224,14 +224,16 @@ int checkForBeep() {
 }
 
 
+// Функція "підбирання" сигналу
 void collectBeep() {
     vector<vector<char>> map = readMapFromFile();
-    int height = map.size(); // Количество строк (высота карты)
-    int width = map[0].size(); // Количество символов в строке (ширина карты)
+    int height = map.size(); // Кількість рядків (висота карти)
+    int width = map[0].size(); // Кількість символів в рядку (ширина карти)
 
-    int targetRow = (height - 3) - 2 * (player_coordY - 1);  // Строка для игрока (по оси Y)
-    int targetCol = 2 + 4 * (player_coordX - 1);  // Столбец для игрока (по оси X)
+    int targetRow = (height - 3) - 2 * (codix_coordY - 1);  // Рядок для Кодикса (по осі Y)
+    int targetCol = 2 + 4 * (codix_coordX - 1);  // Стовбець для Кодикса (по осі X)
 
+    // Перевірка та добавлення сигналу до сумки
     if (checkForBeep() == 1) {
         ofstream file("maps/" + mapName + ".copy");
         map[targetRow][targetCol] = '.';
@@ -246,7 +248,6 @@ void collectBeep() {
         beepBag++;
         file.close();
     }
-
 
 }
 
