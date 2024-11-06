@@ -9,13 +9,13 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-int player_coordX = 1;
-int player_coordY = 1;
+int codix_coordX = 1;
+int codix_coordY = 1;
 int beepBag = 0;
 
-char playerSymbol[4] = {'>', 'V', '<', '^'};
-string facing_[4] = {"EAST ", "SOUTH", "WEST ", "NORTH"};
-int playerSymbol_index = 0;
+char codixSymbol[4] = { '>', 'V', '<', '^' };
+string facing_[4] = { "EAST ", "SOUTH", "WEST ", "NORTH" };
+int codixSymbol_index = 0;
 
 string mapName = "map1";
 string mapPath = "maps/map1.map";
@@ -24,7 +24,7 @@ int maxWidth = 0;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// Функция для чтения карты из файла и сохранения каждого символа в двумерный массив
+// Функція для читання карти з файла і збереження кожного символа в двухмірному масиві
 vector<vector<char>> readMapFromFile() {
     vector<vector<char>> map;
     ifstream file(mapPath);
@@ -32,8 +32,8 @@ vector<vector<char>> readMapFromFile() {
 
     if (file.is_open()) {
         while (getline(file, line)) {
-            vector<char> row(line.begin(), line.end()); // Преобразуем строку в массив символов
-            map.push_back(row); // Добавляем строку в карту
+            vector<char> row(line.begin(), line.end()); // Перетворюємо рядок в масив символів
+            map.push_back(row); // Додаємо рядок до карти
         }
         file.close();
     }
@@ -43,25 +43,26 @@ vector<vector<char>> readMapFromFile() {
 }
 
 
+//Функція для копіювання карти
 void copyMap() {
     vector<vector<char>> map = readMapFromFile();
-    int height = map.size(); // Количество строк (высота карты)
-    int width = map[0].size(); // Количество символов в строке (ширина карты)
+    int height = map.size(); // Кількість рядків (висота карти)
+    int width = map[0].size(); // Кількість символів в рядку (ширина карти)
 
-    ofstream outfile("maps/" + mapName + ".copy");
+    ofstream outfile("maps/" + mapName + ".copy"); // Створення/обновлення копії карти
 
-    for (int i = 0; i < height; i++) {
+    for (int i = 0; i < height; i++) { // Заповнення карти
         for (int a = 0; a < width; a++) {
             outfile << map[i][a];
         }
         outfile << endl;
-    } 
+    }
 
-    outfile.close(); 
+    outfile.close();
 }
 
 
-void setMap(string fileName) { 
+void setMap(string fileName) {
     mapName = fileName;
     mapPath = "maps/" + fileName + ".map";
     copyMap();
@@ -69,61 +70,60 @@ void setMap(string fileName) {
 }
 
 
-// Функция для размещения игрока на карте
+// Функція для розміщення Кодикса на карті
 void placePlayerOnMap(vector<vector<char>>& map) {
-    int height = map.size(); // Количество строк (высота карты)
+    int height = map.size(); // Кількість рядків (висота карти)
+    int width = map[0].size(); // Кількість символов в рядку (ширина карти)
 
-    // Проверяем, что карта не пуста и содержит хотя бы одну строку
+    // Перевіряємо чи карта не пуста та має хоча-б один рядок
     if (height == 0 || map[0].empty()) {
         cerr << "Error: map is empty." << endl;
         return;
     }
 
-    int width = map[0].size(); // Количество символов в строке (ширина карты)
+    // Формули для підрахунку координати в індекси масиву
+    int targetRow = (height - 3) - 2 * (codix_coordY - 1);  // Рядок для Кодикса (по осі Y)
+    int targetCol = 2 + 4 * (codix_coordX - 1);  // Стовбець для Кодикса (по осі X)
 
-    // Рассчитываем строку и столбец, где должен появиться игрок
-    int targetRow = (height - 3) - 2 * (player_coordY - 1);  // Строка для игрока (по оси Y)
-    int targetCol = 2 + 4 * (player_coordX - 1);  // Столбец для игрока (по оси X)
-
-    // Проверяем, что позиция для игрока корректна и что там находится точка
+    // Перевіряємо чи позиція Кодикса корректна, та що там знаходиться крапка
     if (targetRow >= 0 && targetRow < height && targetCol >= 0 && targetCol < width) {
         if (map[targetRow][targetCol] == '.' || map[targetRow][targetCol] == '1') {
-            map[targetRow][targetCol] = playerSymbol[playerSymbol_index];  // Заменяем точку на символ игрока
+            map[targetRow][targetCol] = codixSymbol[codixSymbol_index];  // Заміняємо крапку на символ Кодикса
         }
-        else { cerr << "Error: place for player already occupied by another symbol." << endl; }
+        else { cerr << "Error: place for Codix already occupied by another symbol." << endl; }
     }
-    else { cerr << "Error: failed to place player on map. Incorrect coordinates." << endl; }
+    else { cerr << "Error: failed to Codix player on map. Incorrect coordinates." << endl; }
 }
 
 
-// Функция для отображения карты
+// Функція для відображення карти
 void displayMap(const vector<vector<char>>& map) {
-    int height = map.size(); // Количество строк (высота карты)
-    int width = map[0].size(); // Количество символов в строке (ширина карты)
+    int height = map.size(); // Кількість рядків (висота карти)
+    int width = map[0].size(); // Кількість символов в рядку (ширина карти)
 
     cout << endl;
     cout << "  COORD.      FACING     BEEP-BAG" << endl;
-    cout << "  (" << player_coordX << ", " << player_coordY << ")       " << facing_[playerSymbol_index]  << "        " << beepBag << endl;
+    cout << "  (" << codix_coordX << ", " << codix_coordY << ")       " << facing_[codixSymbol_index] << "        " << beepBag << endl;
 
-    // Нумерация строк ось Y
+    // Нумерація рядків по осі Y
     int rowNum = (height - 1) / 2;
 
     for (int i = 0; i < height; ++i) {
-        if (i % 2 == 1 && i != height - 1) { // Для строк с точками
-            cout << rowNum-- << " "; // Вывод номера строки
+        if (i % 2 == 1 && i != height - 1) { // Для рядків з крапками
+            cout << rowNum-- << " "; // Вивід номера рядка
         }
         else {
-            cout << "  "; // Пустые строки
+            cout << "  "; // Пусті рядки
         }
 
-        // Выводим строку карты
+        // Виводимо рядок карти
         for (int j = 0; j < width; ++j) {
             cout << map[i][j];
         }
         cout << endl;
     }
 
-    // Отображение координат по оси X
+    // Відображення координат по осі X
     cout << "    ";
     for (int i = 1; i <= (width - 3) / 4; ++i) {
         cout << i << "   ";
@@ -133,55 +133,61 @@ void displayMap(const vector<vector<char>>& map) {
 }
 
 
+// Функція остаточного рендара карти
 void rendering() {
-    //Очистка терминала
+    // Очистка термінала
     system("cls");
 
-    // Чтение карты из файла
+    // Читання карти з файлу
     vector<vector<char>> map = readMapFromFile();
 
-    // Размещение игрока на карте
+    // Розміщення Кодикса на карті
     placePlayerOnMap(map);
 
-    // Отображение карты
+    // Відображення карти
     displayMap(map);
 
-    //Задержка в 0,25с
+    // Затримка в 0,25 секунд
     this_thread::sleep_for(chrono::nanoseconds(250000000));
 }
 
 
-void turnRight() { playerSymbol_index = (playerSymbol_index + 1) % 4; rendering(); }
-void turnLeft() { playerSymbol_index = (playerSymbol_index - 1 + 4) % 4; rendering(); }
+// Функція поворотів Кодикса
+void turnRight() { codixSymbol_index = (codixSymbol_index + 1) % 4; rendering(); }
+void turnLeft() { codixSymbol_index = (codixSymbol_index - 1 + 4) % 4; rendering(); }
 
 
-//Проверка нет ли преград перед игроком
+// Перевірка чи немає перешкод перед Кодиксом
 int frontCheck() {
-    //Запись карты с файла в массив
+    // Запис карти з файла в масив
     vector<vector<char>> map = readMapFromFile();
 
-    int height = map.size(); // Количество строк (высота карты)
-    int width = map[0].size(); // Количество символов в строке (ширина карты)
+    int height = map.size(); // Кількість рядків (висота карти)
+    int width = map[0].size(); // Кількість символів в рядку (ширина карти)
 
-    int targetRow = (height - 3) - 2 * (player_coordY - 1);  // Строка для игрока (по оси Y)
-    int targetCol = 2 + 4 * (player_coordX - 1);  // Столбец для игрока (по оси X)
+    int targetRow = (height - 3) - 2 * (codix_coordY - 1);  // Рядок для Кодикса (по осі Y)
+    int targetCol = 2 + 4 * (codix_coordX - 1);  // Стовбець для Кодикса (по осі X)
 
-    //Проверка есть ли впереди игрока какое-то препятствие
-    if (playerSymbol[playerSymbol_index] == '>') { 
-        if (player_coordX == maxWidth) { return 1; } //Если игрок находится справа в самом конце 
-        for (int i = 1; i < 4; i++) { 
+    // Перевірка на наявність перешкод спереду Кодикса
+    if (codixSymbol[codixSymbol_index] == '>') {
+        if (codix_coordX == maxWidth) { return 1; } // Якщо Кодикс знаходится в самому правому краю карти
+        for (int i = 1; i < 4; i++) {
             if (map[targetRow][targetCol + i] != ' ' && map[targetRow][targetCol + i] != '1') { return 1; }
-        } 
+        }
     }
-    if (playerSymbol[playerSymbol_index] == '<') { for (int i = 1; i < 4; i++) { 
-        if (map[targetRow][targetCol - i] != ' ' && map[targetRow][targetCol - i] != '1') { return 1; } }
+    if (codixSymbol[codixSymbol_index] == '<') {
+        for (int i = 1; i < 4; i++) {
+            if (map[targetRow][targetCol - i] != ' ' && map[targetRow][targetCol - i] != '1') { return 1; }
+        }
     }
 
-    if (playerSymbol[playerSymbol_index] == '^') { for (int i = 1; i < 2; i++) { 
-        if (map[targetRow - i][targetCol] != ' ' && map[targetRow - i][targetCol] != '1') { return 1; } }
+    if (codixSymbol[codixSymbol_index] == '^') {
+        for (int i = 1; i < 2; i++) {
+            if (map[targetRow - i][targetCol] != ' ' && map[targetRow - i][targetCol] != '1') { return 1; }
+        }
     }
-    if (playerSymbol[playerSymbol_index] == 'V') { 
-        if (player_coordY == 1) { return 1; } //Если игрок находится в самом низу карты, то еще ниже нет куда 
+    if (codixSymbol[codixSymbol_index] == 'V') {
+        if (codix_coordY == 1) { return 1; } // Якщо Кодикс знаходится в самому низу карти
         for (int i = 1; i < 2; i++) { if (map[targetRow + i][targetCol] != ' ' && map[targetRow + i][targetCol] != '1') { return 1; } }
     }
 
@@ -189,15 +195,15 @@ int frontCheck() {
 }
 
 
-//Делает шаг в ту сторону, куда смотрит игрок
+// Функція для "шагу"
 void step() {
     if (frontCheck() == 0) {
-        if (playerSymbol[playerSymbol_index] == '>') { player_coordX++; }
-        if (playerSymbol[playerSymbol_index] == 'V') { player_coordY--; }
-        if (playerSymbol[playerSymbol_index] == '<') { player_coordX--; }
-        if (playerSymbol[playerSymbol_index] == '^') { player_coordY++; }
+        if (codixSymbol[codixSymbol_index] == '>') { codix_coordX++; }
+        if (codixSymbol[codixSymbol_index] == 'V') { codix_coordY--; }
+        if (codixSymbol[codixSymbol_index] == '<') { codix_coordX--; }
+        if (codixSymbol[codixSymbol_index] == '^') { codix_coordY++; }
     }
-    rendering(); //Отрисовка
+    rendering();
 }
 
 
@@ -235,12 +241,12 @@ void collectBeep() {
                 file << map[i][a];
             }
             file << endl;
-        } 
+        }
 
         beepBag++;
         file.close();
-    } 
-    
+    }
+
 
 }
 
@@ -252,4 +258,4 @@ int main() {
     rendering();
 
     return 0;
-} 
+}
