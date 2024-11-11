@@ -8,6 +8,8 @@
 using namespace std;
 
 //----------------------------------------------------------------------------------------------------------------------
+/*⠄⠄⠄⠄⠄⠄⣀⣤⣴⣶⣾⠟⠉⠻⣷⣶⣦⣤⣀⠄⠄⠄⠄⠄⠄
+  ⠄⠄⠄⢀⣴⣾⣿⣿⣿⠟⠁⠄⠄⠄⣨⣿⣿⣿⣿⣷⣦⡀⠄⠄⠄*/
 
 int codix_coordX = 1;
 int codix_coordY = 1;
@@ -23,6 +25,9 @@ string mapPath = "maps/map1.map";
 int maxWidth = 0;
 
 //----------------------------------------------------------------------------------------------------------------------
+/*
+  ⠄⠄⣴⣿⣿⣿⣿⠟⠁⠄⠄⠄⣠⣾⣿⣿⣿⠿⣿⣿⣿⣿⣦⠄⠄
+  ⠄⣼⣿⣿⣿⣏⠁⠄⠄⠄⠠⣾⣿⣿⡿⠏⠁⠄⠈⠹⢿⣿⣿⣧⠄*/
 
 // Функція для читання карти з файла і збереження кожного символа в двухмірному масиві
 vector<vector<char>> readMapFromFile() {
@@ -43,23 +48,106 @@ vector<vector<char>> readMapFromFile() {
 }
 
 
+vector<vector<string>> converter(vector<char> data) {
+    vector<char> beep;
+    vector<char> codix;
+    int check = 0; int count = 0;
+
+    while (check == 0) {
+        if (data[count] == '}') { data[count] = ' '; check = 1; }
+        if (data[count] == '{') { data[count] = ' '; }
+        if (check == 0) { beep.push_back(data[count]); data[count] = ' '; }
+        count++;
+    }
+    count = 0; check = 0;
+    while (check == 0) {
+        if (data[count] == '}') { data[count] = ' '; check = 1; }
+        if (data[count] == '{') { data[count] = ' '; }
+        if (check == 0 and data[count] != ' ') { codix.push_back(data[count]); data[count] = ' '; }
+        count++;
+    }
+
+
+    string coordX = "1"; string coordY = "1"; string index = "0";
+    for (int i = 0; i < codix.size(); i++) {
+        if (codix[i] == '(') {
+            coordX = codix[i + 1];
+            if (codix[i + 2] != ';') { coordX += codix[i + 2]; }
+        }
+        if (codix[i] == ';') {
+            coordY = codix[i + 1];
+            if (codix[i + 2] != ')') { coordY += codix[i + 2]; }
+        }
+        if (codix[i] == ',') { index = codix[i + 1]; }
+    }
+
+    codix_coordX = stoi(coordX);
+    codix_coordY = stoi(coordY);
+    codixSymbol_index = stoi(index);
+
+
+    string beep_command; check = 1;
+    string beep_coordX = "1"; string beep_coordY = "1";
+    for (int i = 0; i < beep.size(); i++) {
+        if (beep[i] == ',') { check = 0; }
+        if (check == 1) {
+            if (beep[i] != ' ') { beep_command += beep[i]; beep[i] = ' '; }
+        }
+        if (check == 0 and beep_command == "set") {
+            if (beep[i] == '(') {
+                beep_coordX = beep[i + 1];
+                if (beep[i + 2] != ';') { beep_coordX += beep[i + 2]; }
+            }
+            if (beep[i] == ';') {
+                beep_coordY = beep[i + 1];
+                if (beep[i + 2] != ')') { beep_coordY += beep[i + 2]; }
+            }
+        }
+    }
+
+    return { {beep_command}, {beep_coordX, beep_coordY} };
+}
+
+
 //Функція для копіювання карти
 void copyMap() {
     vector<vector<char>> map = readMapFromFile();
+    vector<char> information;
+    int end_map = 0;
+
+    for (int i = 0; i < map.size(); i++) { 
+        for (int j = 0; j < map[i].size(); j++) { 
+            if (map[i][j] == '{') { end_map = 1; }
+            if (end_map == 1) { information.push_back(map[i][j]); }
+        }
+    }
+
+    map.pop_back();
+    map.pop_back();
+    map.pop_back();
+
+
+    vector<vector<string>> beep_info = converter(information);
     int height = map.size(); // Кількість рядків (висота карти)
     int width = map[0].size(); // Кількість символів в рядку (ширина карти)
 
-    ofstream outfile("maps/" + mapName + ".copy"); // Створення/обновлення копії карти
+    if (beep_info[0][0] == "set") {
+        map[(height - 3) - 2 * (stoi(beep_info[1][1]) - 1)][2 + 4 * (stoi(beep_info[1][0]) - 1)] = '1';
+    }
 
+
+    ofstream outfile("maps/" + mapName + ".copy"); // Створення/обновлення копії карти
     for (int i = 0; i < height; i++) { // Заповнення карти
         for (int a = 0; a < width; a++) {
-            outfile << map[i][a];
+            outfile << map[i][a]; 
         }
         outfile << endl;
     }
-
-    outfile.close();
+    outfile.close(); 
 }
+/*
+  ⢸⣿⡿⣿⣿⣿⣷⣄⠄⠄⠄⠈⠻⠋⠄⠄⠄⠄⠄⠄⠄⠙⢿⣿⡇
+  ⡿⠋⠄⠈⠻⣿⣿⣿⣷⣄⠄D⠄⠄⠄⢀⣴⣿⣦⡀⠄⠄⠄⠙⢿ */
 
 
 void setMap(string fileName) {
@@ -94,6 +182,9 @@ void placePlayerOnMap(vector<vector<char>>& map) {
     }
     else { cerr << "Error: failed to Codix player on map. Incorrect coordinates." << endl; }
 }
+/*
+  ⣷⣄⠄⠄⠄⠈⠻⣿⠟⠁⠄⠄D⠄⠄⠙⢿⣿⣿⣿⣦⡀⠄⣠⣾
+  ⢸⣿⣷⣄⠄⠄⠄⠄⠄⠄⠄⣠⣦⡀⠄⠄⠄⠙⢿⣿⣿⣿⣾⣿⡏ */
 
 
 // Функція для відображення карти
@@ -193,6 +284,9 @@ int frontCheck() {
 
     return 0;
 }
+/*
+  ⠄⢻⣿⣿⣷⣆⡀⠄⠄⣠⣾⣿⣿⡿⠆⠄⠄⠄⢀⣹⣿⣿⣿⡟⠄
+  ⠄⠄⠻⣿⣿⣿⣿⣦⣾⣿⣿⡿⠋⠄⠄⠄⢀⣴⣿⣿⣿⣿⠟⠄⠄*/
 
 
 // Функція для "шагу"
@@ -253,10 +347,6 @@ void collectBeep() {
 
 
 //----------------------------------------------------------------------------------------------------------------------
-
-int main() {
-    setMap("map3");
-    rendering();
-
-    return 0;
-}
+/*
+  ⠄⠄⠄⠈⠻⢿⣿⣿⣿⣿⡋⠄⠄⠄⢀⣴⣿⣿⣿⣿⠟⠁⠄⠄⠄
+  ⠄⠄⠄⠄⠄⠄⠉⠛⠿⠿⢿⣦⣀⣴⣿⠿⠿⠛⠉⠄⠄*/
