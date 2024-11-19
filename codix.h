@@ -1,8 +1,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
 
 //Основні
 void setMap(std::string fileName);
@@ -17,8 +15,8 @@ int checkForBeep();
 int frontCheck();
 
 //Системні
-vector<vector<char>> readMapFromFile();
+std::vector<std::vector<char>> readMapFromFile();
 void copyMap();
-vector<vector<string>> converter(vector<char> data);
-void placePlayerOnMap(vector<vector<char>>& map);
-void displayMap(const vector<vector<char>>& map);
+std::vector<std::vector<string>> converter(std::vector<char> data);
+void placePlayerOnMap(std::vector<std::vector<char>>& map);
+void displayMap(const std::vector<std::vector<char>>& map);
