@@ -52,6 +52,7 @@ vector<vector<string>> converter(vector<char> data) {
     vector<char> codix;
     int check = 0; int count = 0;
 
+    // Очистка тексту від лишніх символів
     while (check == 0) {
         if (data[count] == '}') { data[count] = ' '; check = 1; }
         if (data[count] == '{') { data[count] = ' '; }
@@ -67,6 +68,7 @@ vector<vector<string>> converter(vector<char> data) {
     }
 
 
+    // Діставання інформації про Кодикса 
     string coordX = "1"; string coordY = "1"; string index = "0";
     for (int i = 0; i < codix.size(); i++) {
         if (codix[i] == '(') {
@@ -86,6 +88,7 @@ vector<vector<string>> converter(vector<char> data) {
     codixSymbol_index = stoi(index);
 
 
+    // Діставання інформації про "сигнали" 
     string beep_command; check = 1;
     string beep_coordX = "1"; string beep_coordY = "1";
     for (int i = 0; i < beep.size(); i++) {
@@ -116,6 +119,7 @@ void copyMap() {
     vector<char> information;
     int end_map = 0;
 
+    // Сортировка карти та інформації
     for (int i = 0; i < map.size(); i++) { 
         for (int j = 0; j < map[i].size(); j++) { 
             if (map[i][j] == '{') { end_map = 1; }
@@ -123,6 +127,7 @@ void copyMap() {
         }
     }
 
+    // Очистка карти від інформації
     map.pop_back();
     map.pop_back();
     map.pop_back();
@@ -132,12 +137,11 @@ void copyMap() {
     int height = map.size(); // Кількість рядків (висота карти)
     int width = map[0].size(); // Кількість символів в рядку (ширина карти)
 
-    if (beep_info[0][0] == "set") {
-        map[(height - 3) - 2 * (stoi(beep_info[1][1]) - 1)][2 + 4 * (stoi(beep_info[1][0]) - 1)] = '1';
-    }
+    // Команда set в аргументі "сигнала" 
+    if (beep_info[0][0] == "set") { map[(height - 3) - 2 * (stoi(beep_info[1][1]) - 1)][2 + 4 * (stoi(beep_info[1][0]) - 1)] = '1'; }
 
 
-    ofstream outfile("maps/" + mapName + ".copy"); // Створення/обновлення копії карти
+    ofstream outfile("maps/" + mapName + ".copy"); // Створення/оновлення копії карти
     for (int i = 0; i < height; i++) { // Заповнення карти
         for (int a = 0; a < width; a++) {
             outfile << map[i][a]; 
