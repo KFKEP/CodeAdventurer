@@ -40,4 +40,4 @@
 
 ----
 
-Для детальнішої інформації відкрийте [Wiki](https://github.com/KFKEP/CodeAdventurer/wiki) хххххххххххххххххххххххххххххххххххххх
+Для детальнішої інформації відкрийте [Wiki](https://github.com/KFKEP/CodeAdventurer/wiki) 
